@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es-CL"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#060a18">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Recorrido HIS</title>
+<style>
+:root{--c0:#22d3ee;--c1:#a78bfa;--c2:#34d399;--c3:#fbbf24;--c4:#f472b6;--c5:#38bdf8;--c6:#fb923c;--c7:#a3e635;--bg:#060a18;--panel:#0d1530;--ink:#e6f1ff;--mut:#93a8c8;--line:#1f2c52;--a:var(--c0);--dark:#050b1a;color-scheme:dark}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--ink);font:16px/1.6 "Segoe UI",system-ui,-apple-system,sans-serif;
+background:
+radial-gradient(900px 500px at 85% -10%,color-mix(in srgb,var(--a) 22%,transparent),transparent 70%),
+radial-gradient(700px 480px at -10% 30%,rgba(167,139,250,.14),transparent 70%),
+linear-gradient(rgba(34,211,238,.05) 1px,transparent 1px) 0 0/44px 44px,
+linear-gradient(90deg,rgba(34,211,238,.05) 1px,transparent 1px) 0 0/44px 44px,
+var(--bg);background-attachment:fixed;transition:background .4s}
+header{padding:26px 20px 8px;max-width:1020px;margin:auto}
+h1{margin:0;font:700 1.9rem/1.15 Bahnschrift,"Segoe UI",system-ui,sans-serif;letter-spacing:.02em;background:linear-gradient(90deg,var(--c0),var(--c1) 45%,var(--c4));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{margin:6px 0 0;color:var(--mut);font-size:.95rem}
+main{max-width:1020px;margin:auto;padding:0 20px 24px}
+#modes{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+#modes button{font:inherit;font-size:.9rem;padding:9px 16px;border-radius:999px;border:1px solid rgba(34,211,238,.45);background:rgba(13,21,48,.7);color:var(--c0);cursor:pointer;backdrop-filter:blur(6px);transition:box-shadow .2s}
+#modes button:hover{box-shadow:0 0 16px rgba(34,211,238,.35)}
+#modes button.on{background:linear-gradient(90deg,var(--c0),var(--c1));border-color:transparent;color:var(--dark);font-weight:700;box-shadow:0 0 22px rgba(34,211,238,.4)}
+#pais,#largo{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.82rem;color:var(--mut)}
+#pais button,#largo button{font:inherit;font-size:.82rem;padding:5px 13px;border-radius:999px;border:1px solid var(--line);background:rgba(13,21,48,.7);color:var(--mut);cursor:pointer}
+#pais button.on,#largo button.on{border-color:var(--c2);color:var(--dark);background:var(--c2);font-weight:700;box-shadow:0 0 14px rgba(52,211,153,.45)}
+#pais button:focus-visible,#largo button:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+#track{display:flex;gap:7px;overflow-x:auto;padding:14px 0;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.dot{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(13,21,48,.75);border-radius:999px;padding:5px 13px 5px 6px;cursor:pointer;color:var(--mut);font:inherit;font-size:.8rem;transition:box-shadow .2s,border-color .2s}
+.dot:hover{border-color:var(--a)}
+.dot b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--ink);font-size:.75rem}
+.dot.done{border-color:color-mix(in srgb,var(--a) 70%,transparent);color:var(--ink)}.dot.done b{background:var(--a);color:var(--dark);font-weight:700}
+.dot.on{background:var(--a);border-color:var(--a);color:var(--dark);font-weight:700;box-shadow:0 0 18px color-mix(in srgb,var(--a) 60%,transparent)}.dot.on b{background:var(--dark);color:var(--a)}
+#case{background:rgba(13,21,48,.8);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-bottom:12px;font-size:.9rem;color:var(--mut);backdrop-filter:blur(6px)}
+#case b{color:var(--c0)}
+#card,#mdetail{position:relative;background:linear-gradient(160deg,rgba(18,28,64,.88),rgba(10,16,38,.92));border:1px solid color-mix(in srgb,var(--a) 45%,transparent);border-radius:16px;padding:24px 26px;box-shadow:0 0 0 1px rgba(255,255,255,.03) inset,0 0 38px color-mix(in srgb,var(--a) 22%,transparent);backdrop-filter:blur(8px);overflow:hidden}
+#card::before,#mdetail::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,var(--a),transparent)}
+.tag{color:var(--a);font-weight:600;font-size:.85rem;letter-spacing:.04em}
+#card h2,#mdetail h2{font:700 1.8rem/1.2 Bahnschrift,"Segoe UI",system-ui,sans-serif;margin:6px 0 14px;color:var(--ink);text-shadow:0 0 22px color-mix(in srgb,var(--a) 55%,transparent)}
+.mods{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.mods i{font-style:normal;font-size:.8rem;border:1px solid color-mix(in srgb,var(--a) 65%,transparent);background:color-mix(in srgb,var(--a) 12%,transparent);color:var(--ink);border-radius:999px;padding:3px 11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.blk{background:rgba(6,10,24,.6);border:1px solid var(--line);border-top:2px solid var(--b,var(--a));border-radius:10px;padding:13px 15px}
+.blk h3{margin:0 0 6px;font-size:.95rem;color:var(--b,var(--a));letter-spacing:.02em}
+.blk p{margin:0;font-size:.93rem;color:var(--ink)}
+.blk.wide{grid-column:1/-1;background:color-mix(in srgb,var(--b,var(--a)) 9%,rgba(6,10,24,.7));border-style:dashed;border-color:color-mix(in srgb,var(--b,var(--a)) 60%,transparent)}
+#ctl{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-top:18px}
+#ctl button,#ctl select{font:inherit;font-size:.9rem;padding:9px 15px;border-radius:10px;border:1px solid color-mix(in srgb,var(--a) 70%,transparent);background:rgba(13,21,48,.8);color:var(--a);cursor:pointer;max-width:100%;transition:box-shadow .2s}
+#ctl button:hover,#ctl select:hover{box-shadow:0 0 16px color-mix(in srgb,var(--a) 45%,transparent)}
+#ctl select option{background:#0d1530;color:var(--ink)}
+#ctl button[data-a=play]{background:linear-gradient(90deg,var(--a),var(--c1));border-color:transparent;color:var(--dark);font-weight:700;box-shadow:0 0 20px color-mix(in srgb,var(--a) 45%,transparent)}
+#ctl button.on{background:var(--c2);border-color:var(--c2);color:var(--dark);font-weight:700;box-shadow:0 0 18px rgba(52,211,153,.5)}
+#modes button:focus-visible,#ctl button:focus-visible,#ctl select:focus-visible,.dot:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+#meter{margin-top:16px;font-size:.85rem;color:var(--mut)}
+#meter b{color:var(--a)}
+.bar{height:7px;background:var(--line);border-radius:4px;margin-top:7px;overflow:hidden}
+.bar div{height:100%;background:linear-gradient(90deg,var(--c0),var(--a));box-shadow:0 0 12px var(--a);transition:width .3s}
+#note,#vhint{font-size:.8rem;color:var(--mut);margin-top:8px}
+#firma{display:inline-block;margin:0 0 10px;padding:4px 14px;border:1px solid color-mix(in srgb,var(--c0) 55%,transparent);border-radius:999px;background:rgba(13,21,48,.7);color:var(--c0);font-size:.82rem;letter-spacing:.04em;box-shadow:0 0 14px rgba(34,211,238,.25)}
+#mods{display:none}
+body.modmode #mods{display:block}
+body.modmode #track,body.modmode #card,body.modmode #case,body.modmode #meter,body.modmode #note,body.modmode #largo,body.modmode #ctl [data-a]{display:none!important}
+#mdetail{margin-bottom:16px;--a:var(--c0)}
+#mdetail .blk ul{margin:0;padding-left:18px;font-size:.93rem}
+#mdetail .blk li{margin:2px 0}
+.blk .mods{margin:6px 0 0}
+.lnk{font:inherit;font-size:.8rem;border:1px solid color-mix(in srgb,var(--a) 65%,transparent);background:color-mix(in srgb,var(--a) 12%,transparent);color:var(--ink);border-radius:999px;padding:4px 12px;cursor:pointer;transition:box-shadow .2s}
+.lnk:hover{box-shadow:0 0 14px color-mix(in srgb,var(--a) 50%,transparent)}
+.lnk.big{font-size:.9rem;padding:8px 16px;background:linear-gradient(90deg,var(--a),var(--c1));border-color:transparent;color:var(--dark);font-weight:700}
+#msearch{width:100%;font:inherit;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:rgba(13,21,48,.8);color:var(--ink)}
+#msearch::placeholder{color:var(--mut)}
+#msearch:focus-visible,.lnk:focus-visible,.tile:focus-visible,#mgroups button:focus-visible{outline:3px solid #fbbf24;outline-offset:2px}
+#mgroups{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 6px}
+#mgroups button{font:inherit;font-size:.8rem;padding:5px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--a) 60%,transparent);background:rgba(13,21,48,.7);color:var(--ink);cursor:pointer}
+#mgroups button.on{background:var(--a);color:var(--dark);font-weight:700;box-shadow:0 0 14px color-mix(in srgb,var(--a) 50%,transparent)}
+#mcount{font-size:.8rem;color:var(--mut)}
+#mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px;margin-top:10px}
+.tile{text-align:left;font:inherit;font-size:.85rem;padding:10px 12px;border-radius:10px;border:1px solid var(--line);border-left:4px solid var(--a);background:rgba(13,21,48,.8);color:var(--ink);cursor:pointer;transition:box-shadow .2s}
+.tile:hover{box-shadow:0 0 14px color-mix(in srgb,var(--a) 45%,transparent)}
+.tile.on{background:color-mix(in srgb,var(--a) 22%,rgba(13,21,48,.9));border-color:var(--a);font-weight:700}
+/* ===== Movimiento y color ===== */
+body::before{content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;background:radial-gradient(closest-side at 20% 30%,rgba(34,211,238,.20),transparent 70%),radial-gradient(closest-side at 80% 20%,rgba(167,139,250,.22),transparent 70%),radial-gradient(closest-side at 60% 85%,rgba(244,114,182,.18),transparent 70%),radial-gradient(closest-side at 10% 90%,rgba(251,191,36,.12),transparent 70%);animation:drift 24s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4%,-3%,0) scale(1.08)}100%{transform:translate3d(-4%,4%,0) scale(1.15) rotate(3deg)}}
+header,main{position:relative;z-index:1}
+#fx{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+h1{background-image:linear-gradient(90deg,var(--c0),var(--c1),var(--c4),var(--c6),var(--c0));background-size:250% auto;animation:shine 10s linear infinite}
+@keyframes shine{to{background-position:250% center}}
+@keyframes flow{to{background-position:200% 0}}
+@keyframes glow{0%,100%{box-shadow:0 0 10px rgba(34,211,238,.2)}50%{box-shadow:0 0 24px rgba(167,139,250,.6)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px color-mix(in srgb,var(--a) 50%,transparent)}50%{box-shadow:0 0 28px var(--a)}}
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.8) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sweep{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes talk{0%,100%{opacity:.12;box-shadow:inset 0 0 26px var(--a)}50%{opacity:.75;box-shadow:inset 0 0 64px var(--a)}}
+#firma{animation:glow 3.5s ease-in-out infinite}
+#card::before,#mdetail::before{background:linear-gradient(90deg,transparent,var(--a),var(--c1),var(--c4),transparent);background-size:200% 100%;animation:sweep 3.5s linear infinite}
+#card::after,#mdetail::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
+body.talking #card::after,body.talking #mdetail::after{animation:talk 1.4s ease-in-out infinite}
+.enter{animation:rise .5s cubic-bezier(.2,.8,.2,1) backwards}
+.enter h2{animation:rise .6s cubic-bezier(.2,.8,.2,1) .05s backwards}
+.enter .blk{animation:rise .6s cubic-bezier(.2,.8,.2,1) backwards}
+.enter .blk:nth-child(1){animation-delay:.10s}.enter .blk:nth-child(2){animation-delay:.18s}.enter .blk:nth-child(3){animation-delay:.26s}.enter .blk:nth-child(4){animation-delay:.34s}.enter .blk:nth-child(5){animation-delay:.42s}
+.mods>*{animation:pop .45s cubic-bezier(.2,1.4,.4,1) backwards}
+.mods>*:nth-child(1){animation-delay:.15s}.mods>*:nth-child(2){animation-delay:.21s}.mods>*:nth-child(3){animation-delay:.27s}.mods>*:nth-child(4){animation-delay:.33s}.mods>*:nth-child(5){animation-delay:.39s}.mods>*:nth-child(6){animation-delay:.45s}.mods>*:nth-child(n+7){animation-delay:.5s}
+.grid>.blk:nth-child(1){--b:var(--c0)}.grid>.blk:nth-child(2){--b:var(--c1)}.grid>.blk:nth-child(3){--b:var(--c3)}.grid>.blk:nth-child(4){--b:var(--c4)}.grid>.blk:nth-child(5){--b:var(--c2)}
+.dot.on{animation:pulse 2.2s ease-in-out infinite}
+.dot,.tile,#modes button,#ctl button,.lnk,#mgroups button,#pais button,#largo button{transition:transform .2s,box-shadow .2s,background .2s}
+.dot:hover,#modes button:hover,#ctl button:hover,.lnk:hover,#mgroups button:hover,#pais button:hover,#largo button:hover{transform:translateY(-2px)}
+.dot:active,#modes button:active,#ctl button:active,.lnk:active,.tile:active{transform:scale(.96)}
+.bar div{background:linear-gradient(90deg,var(--c0),var(--c1),var(--c4),var(--c6),var(--c0));background-size:200% 100%;animation:flow 3s linear infinite}
+#modes button.on{background:linear-gradient(90deg,var(--c0),var(--c1),var(--c4),var(--c0));background-size:200% 100%;animation:flow 4s linear infinite}
+#ctl button[data-a=play],.lnk.big{background:linear-gradient(90deg,var(--a),var(--c1),var(--c4),var(--a));background-size:200% 100%;animation:flow 5s linear infinite}
+.tile{animation:pop .5s cubic-bezier(.2,1.3,.4,1) backwards;animation-delay:calc(var(--i,0)*20ms)}
+.tile:hover{transform:translateY(-3px) scale(1.03)}
+.tile.on{animation:pulse 2.4s ease-in-out infinite}
+@media (max-width:560px){h1{font-size:1.5rem}#card{padding:18px 16px}#card h2{font-size:1.45rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<header><div id="firma">Hecho por Melissa Zamorano · Tecnóloga en Informática Biomédica</div><h1 id="h1"></h1><p id="sub"></p>
+<div id="modes">
+<button data-m="pac" class="on">Recorrido del paciente</button>
+<button data-m="inf">Rol del informático biomédico en un HIS</button>
+<button data-m="mod">Módulos principales del HIS</button>
+</div>
+<div id="pais"><span>País:</span><button data-p="cl" class="on">Chile</button><button data-p="int">Internacional</button></div>
+<div id="largo"><span>Duración:</span><button data-l="full" class="on">Completo</button><button data-l="brief">Breve</button></div></header>
+<main>
+<div id="track"></div>
+<div id="case"></div>
+<div id="card"></div>
+<div id="ctl">
+<button data-a="prev">◀ Anterior</button>
+<button data-a="play" id="play">▶ Recorrido automático</button>
+<button data-a="next">Siguiente ▶</button>
+<button data-a="voice" id="voice" aria-pressed="false">🔊 Voz: apagada</button>
+<select id="rate" aria-label="Velocidad de la voz"><option value="0.85">Lenta</option><option value="1" selected>Normal</option><option value="1.2">Rápida</option></select>
+<select id="vsel" aria-label="Elegir voz"></select>
+</div>
+<div id="vhint"></div>
+<div id="note">Con la voz activada, el recorrido automático avanza cuando termina de explicar cada paso. Sirve para cualquier HIS. Con País: Chile verás RUN, REM y leyes chilenas; con Internacional verás términos generales. Con Duración: Breve el recorrido tiene menos pasos y la voz cuenta solo lo esencial.</div>
+<div id="meter"></div>
+<section id="mods"><div id="mdetail"></div><input id="msearch" type="search" placeholder="Buscar un módulo o una función…" aria-label="Buscar módulo"><div id="mgroups"></div><div id="mcount"></div><div id="mgrid"></div></section>
+</main>
+<script>
+/* =====================  CONTENIDO  ===================== */
+const PAC={
+ unit:"Paso",title:"Recorrido de un paciente por el HIS",
+ sub:"Un paciente con dolor torácico, paso a paso, con los módulos y estándares que intervienen.",
+ tagsLabel:"Los módulos que participan son",heads:["Qué ocurre","Evento y estándares","Qué validar como informático","Quién interviene y qué hace"],
+ spoken:["Qué ocurre.","Eventos y estándares.","Y como informático, lo que debes validar es esto.","Quiénes intervienen y qué hacen."],
+ case:"Don Luis, 58 años, hipertenso y diabético tipo 2, alérgico a la penicilina. Llega a Urgencia con dolor opresivo en el pecho de 40 minutos que se va al brazo izquierdo, con sudoración. Presión de 160 con 95 y saturación de 94 por ciento.",
+ intro:"Comencemos el recorrido. Seguiremos a un paciente con dolor torácico que llega a Urgencia. ",
+ outro:" Con esto termina el recorrido completo del paciente por el sistema.",
+ phases:[["Ingreso","c0"],["Diagnóstico","c1"],["Tratamiento","c2"],["Alta y cierre","c3"],["Gestión y datos","c4"]],
+ steps:[
+["Identificación del paciente",0,["Paciente","Seguridad / IAM","Integraciones"],"Un paciente con dolor torácico llega a Urgencia. El administrativo inicia sesión (usuario y rol), busca por RUN en el índice maestro de pacientes y, si no existe, lo crea. Si llega inconsciente, se abre un registro NN para fusionarlo después.","HL7 ADT^A28 (alta de persona) o A31 (actualización); FHIR Patient. El MPI replica la identidad a los demás sistemas.","Duplicados y fusión (A40), validación del RUN (módulo 11), paciente NN y que el inicio de sesión quede auditado."],
+["Admisión y triage",0,["Admisión / ADT","Emergencias","Camas y Hospitalización"],"Se abre el episodio de urgencia y la enfermera de triage asigna la categoría de riesgo (C1 a C5), que ordena la cola de atención.","HL7 ADT^A04 (registro en urgencia); FHIR Encounter. ADT notifica a todos los sistemas suscritos.","Marcas de tiempo (llegada, triage, atención), categoría obligatoria y qué ocurre si ADT se cae (downtime)."],
+["Atención médica",1,["Clínico","Motor de Reglas Clínicas","Especialidades","Odontología"],"El médico registra anamnesis, signos vitales y sospecha diagnóstica. El motor de reglas avisa si hay alergias o criterios de riesgo.","FHIR Condition, Observation y AllergyIntolerance; diagnóstico con CIE-10 y SNOMED CT; reglas de apoyo a la decisión.","Dato codificado en vez de texto libre, plantillas por especialidad y alertas que no saturen al clínico."],
+["Órdenes clínicas",1,["Órdenes Clínicas","Laboratorio / LIS","Imagenología / RIS-PACS"],"Se indican electrocardiograma, exámenes de sangre y una radiografía. Cada orden viaja al servicio que la ejecuta.","HL7 ORM^O01 y OML^O21; FHIR ServiceRequest; catálogo mapeado a LOINC.","Mapeo del catálogo de prestaciones, prioridad urgente y que la orden llegue al LIS y al RIS sin perderse."],
+["Diagnóstico de apoyo",1,["Laboratorio / LIS","Imagenología / RIS-PACS","Patología"],"El laboratorio procesa las muestras en sus analizadores y valida resultados. Radiología adquiere la imagen y el radiólogo la informa.","HL7 ORU^R01 (resultados); DICOM y DICOMweb para imágenes; FHIR DiagnosticReport; accession number.","Valores críticos con aviso inmediato, unidades y rangos, e informe enlazado a su imagen."],
+["Interconsulta",1,["Interconsultas","Telemedicina"],"El resultado sugiere un problema cardíaco: se solicita interconsulta a cardiología, presencial o por teleconsulta.","FHIR ServiceRequest y Task; HL7 REF; derivación a lista de espera (SIGTE) si es ambulatoria.","Estados y plazos de respuesta, y que el solicitante sea notificado cuando se responde."],
+["Hospitalización y cama",2,["Camas y Hospitalización","Admisión / ADT","Gestión de Recursos"],"Se decide hospitalizar. El sistema muestra las camas disponibles en la unidad adecuada y se asigna una; el paciente sube con su pulsera.","HL7 ADT^A01 (ingreso) y A02 (traslado); FHIR Location y Encounter.","Estado de cama sincronizado (libre, ocupada, limpieza) y pulsera con identificadores correctos."],
+["Tratamiento y cuidados",2,["Farmacia","Enfermería","Nutrición / Dietas","Inventario"],"El médico prescribe, farmacia valida y dispensa, y enfermería administra con verificación y registra signos vitales y balance. Nutrición ajusta la dieta.","HL7 RDE^O11 (prescripción) y RAS^O17 (administración); FHIR MedicationRequest y MedicationAdministration; ATC.","Interacciones y alergias, administración con código de barras, y stock y lotes descontados por paciente."],
+["Procedimiento",2,["Quirófano","Esterilización / CEyE","Banco de Sangre","Consentimientos"],"Si requiere un procedimiento: consentimiento firmado, pabellón programado, set esterilizado y, si hace falta, sangre compatible.","FHIR Procedure y Consent; checklist de seguridad; trazabilidad por lote (GS1/UDI) e ISBT 128.","Consentimiento vinculado al procedimiento, trazabilidad set a paciente y tiempos quirúrgicos registrados."],
+["Vigilancia y seguridad",2,["Control de Infecciones","Calidad y Seguridad","Rehabilitación"],"Durante la estadía se vigilan infecciones y eventos adversos, y kinesiología inicia la rehabilitación temprana.","Reglas sobre resultados de microbiología (antibiograma); notificación IAAS; CIF para evolución funcional.","Alertas de aislamiento, flujo de notificación de eventos y datos explotables para indicadores."],
+["Alta clínica",3,["Admisión / ADT","Gestión Documental"],"El médico indica el alta y redacta la epicrisis, que se firma electrónicamente. La cama pasa a limpieza.","HL7 ADT^A03 (alta); HL7 CDA o FHIR DocumentReference para la epicrisis; firma electrónica avanzada.","Que el alta cierre el episodio y libere la cama, epicrisis firmada y diagnósticos de egreso codificados."],
+["Facturación y seguimiento",3,["Facturación","Agenda y Citas","Portal del Paciente","Comunicación"],"Se valoriza la cuenta (GRD, Fonasa o Isapre), se agenda el control y el paciente ve su epicrisis y citas en el portal. Recibe recordatorios.","HL7 DFT^P03 (cargos); SIU^S12 (cita); FHIR API con SMART on FHIR para el portal.","Prestaciones completas y codificadas, cuenta cerrada tras el alta y consentimiento de contacto."],
+["Datos y vigilancia",4,["Reportes / BI","Salud Pública","Auditoría"],"Con lo registrado se construyen indicadores y REM, se notifican enfermedades de notificación obligatoria y se auditan los accesos a la ficha.","ETL a un modelo dimensional; REM/DEIS; FHIR AuditEvent e IHE ATNA.","Calidad del dato (completitud y consistencia), diccionario de indicadores y revisión de accesos."],
+["Detrás de escena",4,["Abastecimiento","Compras","RRHH / Personal","Administración Hospitalaria","Gestión Operacional","Ambulancias / Transporte"],"Mientras tanto, la logística repone insumos, RRHH gestiona turnos y credenciales, y la gestión operacional mira ocupación y flujo. Ambulancias coordina los traslados.","Maestro de artículos (GS1), integración con ERP y Mercado Público; usuarios creados desde RRHH.","Códigos únicos entre clínico y logístico, altas y bajas de personal ligadas a usuarios y roles, y parametrización base sin errores."],
+["Mejora continua",4,["IA Clínica","Investigación Clínica","Docencia / Formación","Portal del Profesional"],"Los datos alimentan modelos de apoyo, estudios y docencia, y el equipo clínico ve sus tareas y alertas en su portal.","Seudonimización, CDISC, NLP y modelos predictivos; SMART on FHIR.","Sesgo y calidad de datos, aprobación de ética y acceso temporal supervisado para estudiantes."]]
+};
+
+const INF={
+ unit:"Etapa",title:"El informático biomédico en un proyecto HIS",
+ sub:"Qué hace, etapa por etapa, desde el levantamiento inicial hasta el cierre y el traspaso.",
+ tagsLabel:"Entregables de esta etapa",heads:["Qué haces","Herramientas y estándares","Cómo saber que salió bien","Con quién trabajas"],
+ spoken:["Qué haces.","Herramientas y estándares.","Cómo saber que salió bien.","Con quién trabajas."],
+ intro:"Ahora veamos qué hace un informático biomédico en un proyecto de implementación de un HIS, desde el inicio hasta el cierre. ",
+ outro:" Con esto termina el recorrido de un proyecto HIS, desde el levantamiento hasta el traspaso.",
+ phases:[["Inicio","c0"],["Diseño","c1"],["Construcción y pruebas","c2"],["Puesta en marcha","c3"],["Operación y cierre","c4"]],
+ steps:[
+["Levantamiento y diagnóstico",0,["Mapa de procesos actual","Inventario de sistemas","Brechas","Riesgos"],"Conversas con admisión, urgencia, enfermería, laboratorio, farmacia y los demás servicios para entender cómo trabajan hoy: qué hacen en papel, qué sistemas usan y dónde se pierde información. Todo queda documentado antes de configurar nada.","Entrevistas, observación en terreno, diagramas de flujo (BPMN), inventario de sistemas y equipos (analizadores, PACS, red), catálogo de prestaciones y normas vigentes del MINSAL.","Documento de situación actual, lista de brechas priorizada y riesgos acordados con la jefatura clínica."],
+["Gobernanza y alcance",0,["Acta de constitución","Comité del proyecto","Plan de trabajo","Matriz de responsables"],"Defines con el hospital qué módulos entran, en qué orden y quién decide qué. Se arma el comité con jefaturas clínicas, TI y la empresa proveedora, y se fija el calendario de hitos.","Carta Gantt, matriz RACI, plan de comunicación, gestión de riesgos y las bases técnicas o el contrato del servicio de salud.","Alcance firmado, responsables por módulo y calendario con hitos. Todo cambio posterior pasa por el comité."],
+["Diseño de flujos y brechas",1,["Flujos futuros","Requerimientos","Brechas contra el estándar","Validación clínica"],"Traduces cómo trabaja cada unidad a cómo lo hará el sistema: qué se registra, quién lo registra y cuándo. Cuando el sistema no calza con la práctica, decides junto a la clínica si se adapta el flujo o se configura el sistema.","BPMN, historias de usuario, talleres con usuarios clave y prototipos en un ambiente de pruebas.","Flujos aprobados por cada jefatura y requerimientos que se pueden seguir hasta su prueba."],
+["Parametrización y configuración",1,["Catálogos","Roles y perfiles","Agendas y camas","Plantillas clínicas"],"Cargas y ajustas lo que hace funcionar el sistema: prestaciones, unidades, camas, agendas, usuarios y perfiles, plantillas de registro, formularios y alertas. Un error de configuración se repite en cada paciente.","Consola de configuración del HIS que se implemente, sea cual sea, catálogos de prestaciones, CIE-10, códigos DEIS y una matriz de perfiles y permisos.","Ambiente configurado y documentado, con la matriz de perfiles aprobada por seguridad y por cada jefatura."],
+["Interoperabilidad e integraciones",1,["Interfaces HL7","APIs FHIR","Mapeo de terminologías","Monitoreo de mensajes"],"Conectas el HIS con laboratorio, imágenes, farmacia, agendamiento, facturación y las redes externas. Defines qué mensaje se envía, cuándo y con qué códigos, y mapeas los catálogos locales a estándares.","HL7 v2, FHIR, DICOM, motor de integración, SNOMED CT, LOINC, CIE-10 y CIE-11, identificación única por RUN y el marco de interoperabilidad de la ficha clínica (Ley 21.668).","Mensajes de prueba que viajan sin pérdidas ni duplicados, tabla de mapeos aprobada y alertas cuando una interfaz falla."],
+["Migración de datos",2,["Limpieza","Plan de carga","Conciliación","Respaldo"],"Preparas los datos del sistema antiguo para pasarlos al nuevo: pacientes, agenda y maestros. Depuras duplicados y RUN inválidos, haces cargas de prueba y comparas totales.","SQL, R o Excel para depurar, scripts de carga, reglas de calidad (completitud, unicidad y consistencia) e índice maestro de pacientes.","Informe de conciliación que muestre que lo que había es igual a lo que quedó, con las diferencias explicadas y un respaldo previo a la carga final."],
+["Pruebas",2,["Casos de prueba","Prueba integral","Pruebas de usuario","Seguridad y rendimiento"],"Diseñas casos que recorren el flujo completo, como el del paciente con dolor torácico, y los ejecutas con usuarios reales. Registras cada falla, la clasificas y verificas que se corrija.","Matriz de trazabilidad, casos por flujo, registro de defectos, pruebas de carga, revisión de accesos y de auditoría, y datos de prueba sin información real de pacientes.","Acta de aceptación firmada por cada jefatura clínica y lista de defectos pendientes con su riesgo aceptado."],
+["Capacitación",3,["Plan de capacitación","Manuales y guías rápidas","Usuarios clave","Ambiente de práctica"],"Capacitas por rol (administrativos, TENS, enfermería, médicos, matronería, nutrición, farmacia y laboratorio) con casos de su propio servicio. Formas usuarios clave que después apoyan a sus compañeros.","Ambiente de capacitación con pacientes ficticios, guías rápidas por rol, listas de asistencia y una evaluación breve.","Todos los usuarios con perfil activo capacitados y evaluados antes de la salida en vivo. Nadie entra sin curso."],
+["Contingencia y decisión de salida",3,["Ensayo general","Plan de caída del sistema","Lista de verificación","Decisión de salida"],"Haces un ensayo general, revisas que todo esté listo y defines qué hacer si el sistema se cae: fichas de respaldo en papel, quién llama a quién y cómo se ingresan los datos después.","Lista de verificación de salida, plan de contingencia, plan de reversa, cronograma hora por hora y matriz de escalamiento.","Decisión de seguir o postergar acordada en el comité, con el plan de contingencia impreso y conocido por todos los servicios."],
+["Salida en vivo y marcha blanca",3,["Acompañamiento en terreno","Mesa de ayuda","Registro de incidentes","Informe diario"],"Estás en terreno los primeros días, al lado de los usuarios. Resuelves dudas, clasificas los incidentes (error, duda de uso o mejora) y derivas al proveedor los que no se resuelven en el momento.","Sistema de tickets, reunión diaria de seguimiento, tablero de incidentes y un canal directo con el proveedor.","Incidentes críticos resueltos, atención del hospital sin interrupciones y un reporte diario hasta que todo se estabilice."],
+["Soporte y operación",4,["Mesa de ayuda","Niveles de soporte","Acuerdos de servicio","Monitoreo"],"Terminada la marcha blanca, el soporte pasa a ser permanente. Atiendes consultas, corriges configuraciones, revisas las interfaces y mides los tiempos de respuesta.","Tickets, niveles de soporte N1, N2 y N3, acuerdos de servicio (SLA) y monitoreo de interfaces y disponibilidad.","Incidentes cerrados dentro del plazo y análisis de la causa de los que se repiten."],
+["Gestión de cambios y versiones",4,["Solicitudes de cambio","Ambiente de pruebas","Versiones","Documentación"],"Todo cambio, sea un catálogo nuevo, una plantilla o una actualización del proveedor, se evalúa, se prueba en el ambiente de pruebas y recién entonces pasa a producción, avisando a los usuarios.","Comité de cambios, ambientes separados (desarrollo, pruebas y producción), notas de versión y pruebas de regresión.","Cada cambio queda registrado, probado, aprobado y con una forma de volver atrás."],
+["Datos, indicadores y calidad",4,["Indicadores","REM","Calidad del dato","Auditoría de accesos"],"Revisas que lo registrado sirva: datos completos, codificados y consistentes. Construyes reportes e indicadores (REM, listas de espera, ocupación) y revisas quién accedió a cada ficha.","SQL, R o una herramienta de BI, modelo dimensional, diccionario de indicadores, registro de auditoría, y la normativa de ficha clínica (Ley 20.584) y de protección de datos personales.","Indicadores confiables y rastreables hasta el dato de origen, con informes de auditoría periódicos."],
+["Cierre y traspaso",4,["Acta de cierre","Documentación final","Lecciones aprendidas","Traspaso a operación"],"Cierras formalmente: entregas manuales, configuración documentada, matriz de perfiles y mapeos, y traspasas el soporte al equipo del hospital. Haces con el comité una evaluación de qué funcionó y qué se puede mejorar.","Acta de cierre, repositorio documental, reunión de lecciones aprendidas e indicadores de beneficios antes y después.","Un hospital capaz de operar y mantener el sistema sin depender de ti, con todo documentado y un plan de mejora continua para los próximos módulos."]]
+};
+PAC.roles=["Administrativo de admisión: inicia sesión, busca por RUN y crea o actualiza al paciente. TENS de urgencia: si llega inconsciente, reúne los datos mínimos para el registro NN. Informático biomédico: administra usuarios, roles y la fusión de duplicados. Encargado de seguridad de la información: revisa los accesos.", "Administrativo de admisión: abre el episodio de urgencia. Enfermera de triage: asigna la categoría C1 a C5 y registra signos vitales. TENS: toma signos vitales y electrocardiograma según protocolo. Jefatura de urgencia: ve la cola y la carga de trabajo.", "Médico de urgencia: hace la anamnesis, el examen físico, plantea el diagnóstico e indica. Enfermera: registra la evolución y cumple las indicaciones. TENS: apoya los procedimientos y registra cuidados básicos. Informático biomédico: mantiene las plantillas, reglas y alertas.", "Médico: emite las órdenes de ECG, laboratorio e imagen. Enfermera: confirma las órdenes y coordina las muestras. TENS: toma el electrocardiograma y rotula y traslada las muestras. Informático biomédico: cuida el catálogo de prestaciones y su mapeo.", "Técnico paramédico de laboratorio: recibe y rotula las muestras. Tecnólogo médico de laboratorio: procesa, valida y avisa los valores críticos. Técnico o tecnólogo médico de imagenología: toma la radiografía. Médico radiólogo: informa. Informático biomédico: vigila las interfaces con LIS y RIS.", "Médico de urgencia: solicita la interconsulta. Cardiólogo: evalúa y responde, de forma presencial o por teleconsulta. Gestor de lista de espera: gestiona la derivación en SIGTE si es ambulatoria. Enfermera coordinadora de telemedicina: agenda y apoya la conexión.", "Médico tratante: indica la hospitalización. Gestor de camas: asigna la cama según la unidad. Administrativo de admisión: emite la pulsera de identificación. Enfermera supervisora y TENS de la unidad: reciben al paciente y verifican su identidad. Camillero: lo traslada.", "Médico: prescribe. Químico farmacéutico: valida interacciones y alergias, y dispensa. Enfermera: administra con verificación por código de barras y registra. TENS: toma signos vitales, balance y apoya en cuidados según su competencia. Nutricionista: ajusta la dieta. Encargado de bodega: controla stock y lotes.", "Cardiólogo o cirujano: realiza el procedimiento. Anestesiólogo: evalúa y administra la anestesia o sedación. Enfermera de pabellón: aplica el checklist de seguridad. Arsenalera, TENS o enfermera: prepara el instrumental. TENS de esterilización: entrega el set trazado. Tecnólogo médico de banco de sangre: prepara sangre compatible.", "Enfermera de control de infecciones: vigila IAAS y aislamientos. Tecnólogo médico de microbiología: informa cultivos y antibiogramas. Encargado de calidad: gestiona eventos adversos. Kinesiólogo: inicia la rehabilitación temprana y registra la evolución funcional.", "Médico tratante: indica el alta y firma la epicrisis. Enfermera: educa al paciente y entrega indicaciones. Administrativo de admisión: cierra el episodio. Gestor de camas: libera la cama. Auxiliar de servicio y TENS: dejan la cama en limpieza y la habilitan.", "Codificador clínico: asigna los diagnósticos de egreso con CIE-10 y GRD. Unidad de recaudación o facturación: valoriza y cierra la cuenta. Secretaria o administrativo de agenda: programa el control. Asistente social: apoya cuando hay problemas de previsión o convenios.", "Unidad de estadística: elabora el REM y los reportes. Epidemiólogo: gestiona la notificación obligatoria. Encargado de auditoría y seguridad: revisa los accesos a la ficha. Informático biomédico: asegura la calidad del dato y la trazabilidad.", "Encargado de abastecimiento y bodega: repone insumos. Unidad de compras: gestiona adquisiciones. RRHH: administra turnos, credenciales y altas y bajas de usuarios. Gestión operacional: monitorea ocupación y flujo. Conductores y TENS de ambulancia: realizan los traslados.", "Equipo de ciencia de datos: construye y valida modelos de IA. Comité de ética: aprueba los estudios. Docentes clínicos: guían a los estudiantes, que acceden de forma temporal y supervisada. Profesionales clínicos: usan su portal con tareas y alertas."];
+INF.roles=["Jefaturas clínicas y supervisoras de cada servicio, TENS, enfermeras y administrativos que usan el sistema a diario, y el equipo de TI del hospital.", "Dirección del hospital como patrocinador, jefe de proyecto de la empresa, jefaturas clínicas, TI, finanzas, abastecimiento y tú como consultora funcional.", "Usuarios clave de cada unidad (enfermería, TENS, médicos, laboratorio, farmacia), jefaturas que aprueban y analistas del proveedor.", "Jefaturas de unidad que validan catálogos y plantillas, encargado de seguridad de la información para los perfiles y analistas técnicos del proveedor.", "Ingenieros de integración, proveedores del LIS y del RIS-PACS, tecnólogos médicos que conocen los analizadores y el equipo de TI del hospital.", "Unidad de estadística y admisión, dueños del maestro de pacientes, TI del hospital y el proveedor del sistema antiguo.", "Usuarios clave como probadores, jefaturas que firman la aceptación y el equipo de calidad y seguridad.", "Enfermeras supervisoras y usuarios clave como apoyo, RRHH para coordinar horarios y jefaturas que liberan al personal.", "Comité del proyecto, jefaturas de urgencia y servicios críticos con sus planes de papel, TI y la dirección que decide.", "Usuarios clave, equipo técnico del proveedor, TI del hospital y jefaturas presentes en el hospital durante los primeros días.", "Mesa de ayuda del hospital y del proveedor, administradores técnicos y jefaturas de los servicios.", "Comité de cambios, jefaturas que solicitan, proveedor y TI.", "Unidad de estadística, calidad, epidemiología, jefaturas clínicas y encargado de seguridad de la información.", "Comité del proyecto, dirección, TI del hospital, proveedor y los equipos clínicos que seguirán operando el sistema."];
+const MOD={"title": "Módulos principales de un HIS hospitalario", "sub": "Explora cada módulo: qué hace, sus funciones clave, quién lo usa y con qué se conecta.", "groups": [["Atención clínica", "c0"], ["Diagnóstico y apoyo", "c1"], ["Administración y logística", "c2"], ["Datos, seguridad y calidad", "c3"], ["Pacientes, comunidad e innovación", "c4"]], "mods": [["Paciente", 0, "Es el registro maestro de cada persona atendida: su identidad, datos de contacto, previsión y contactos de emergencia. Todos los demás módulos se apoyan en él.", ["Índice maestro de pacientes (RUN)", "Datos demográficos, previsión y contactos", "Detección y fusión de duplicados", "Paciente NN y datos siempre actualizados"], "Administrativos de admisión y atención al usuario; lo consulta todo el equipo clínico.", ["Admisión / ADT", "Integraciones", "Seguridad / IAM", "Portal del Paciente"]], ["Admisión / ADT", 0, "Gestiona el ingreso, el traslado y el alta del paciente y mantiene abierto su episodio de atención. Avisa a los demás sistemas cada vez que algo cambia.", ["Ingreso y registro del episodio", "Traslados entre unidades", "Alta administrativa", "Aviso de eventos a otros sistemas (HL7 ADT)"], "Administrativos de admisión, gestores de camas y urgencia.", ["Paciente", "Camas y Habitaciones", "Emergencias", "Facturación"]], ["Camas y Habitaciones", 0, "Muestra en tiempo real qué camas existen, en qué estado están y quién las ocupa, para asignar bien y mover pacientes sin perder tiempo.", ["Mapa de camas por unidad", "Estados: libre, ocupada, en limpieza o bloqueada", "Asignación y traslados", "Ocupación y tiempos de rotación"], "Gestores de camas, enfermeras supervisoras y admisión.", ["Admisión / ADT", "Enfermería", "Gestión de Recursos", "Administración Hospitalaria"]], ["Agenda y Citas", 0, "Organiza las horas de consulta, procedimientos y exámenes de cada profesional y servicio, y envía recordatorios al paciente.", ["Agendas por profesional y servicio", "Citas, bloqueos y sobrecupos", "Recordatorios al paciente", "Lista de espera"], "Secretarias de agenda, call center, profesionales y pacientes a través del portal.", ["Paciente", "Clínico", "Portal del Paciente", "Comunicación"]], ["Clínico", 0, "Es la ficha clínica electrónica: aquí el equipo registra la anamnesis, la evolución, los diagnósticos y las indicaciones.", ["Anamnesis y examen físico", "Evolución y notas clínicas", "Diagnósticos codificados (CIE-10, SNOMED CT)", "Alergias, antecedentes y problemas activos"], "Médicos, enfermeras y demás profesionales clínicos.", ["Órdenes Clínicas", "Motor de Reglas Clínicas", "Especialidades", "Gestión Documental"]], ["Emergencias", 0, "Cubre la atención de urgencia: llegada, triage, atención y destino del paciente, con foco en la prioridad y los tiempos.", ["Admisión y triage con categoría de riesgo", "Cola y tablero de urgencia", "Registro rápido de signos vitales e indicaciones", "Tiempos de llegada, triage, atención y destino"], "Administrativos, enfermeras de triage, médicos de urgencia y TENS.", ["Admisión / ADT", "Clínico", "Órdenes Clínicas", "Ambulancias / Transporte"]], ["Especialidades", 0, "Adapta el registro clínico a cada especialidad (cardiología, pediatría, ginecología y otras) con plantillas, escalas y formularios propios.", ["Plantillas y formularios por especialidad", "Escalas y protocolos", "Interconsultas y derivaciones", "Seguimiento de controles"], "Especialistas y equipos de policlínico.", ["Clínico", "Agenda y Citas", "Telemedicina", "Motor de Reglas Clínicas"]], ["Odontología", 0, "Registra la atención dental: odontograma, plan de tratamiento y prestaciones realizadas.", ["Odontograma digital", "Plan de tratamiento y seguimiento", "Prestaciones y cobro", "Imágenes radiográficas"], "Odontólogos, higienistas y asistentes dentales.", ["Paciente", "Agenda y Citas", "Imagenología / RIS-PACS", "Facturación"]], ["Enfermería", 0, "Reúne el trabajo de enfermería y TENS en la unidad: cuidados, signos vitales, balance, administración de medicamentos y evolución.", ["Plan de cuidados y evolución de enfermería", "Signos vitales y balance hídrico", "Administración de medicamentos con verificación", "Escalas de riesgo (caídas, lesiones por presión)"], "Enfermeras, matronas y TENS.", ["Clínico", "Farmacia", "Camas y Habitaciones", "Control de Infecciones"]], ["Rehabilitación", 0, "Apoya a kinesiología, terapia ocupacional y fonoaudiología: evaluación funcional, plan de sesiones y avance del paciente.", ["Evaluación funcional", "Plan y registro de sesiones", "Escalas de evolución (CIF)", "Agenda de terapias"], "Kinesiólogos, terapeutas ocupacionales y fonoaudiólogos.", ["Clínico", "Agenda y Citas", "Enfermería"]], ["Telemedicina", 0, "Permite atender a distancia por videollamada, con la agenda, la ficha y el registro de la atención integrados.", ["Videoconsulta", "Agenda de teleconsultas", "Registro en la ficha clínica", "Consentimiento y recetas a distancia"], "Médicos, especialistas y pacientes.", ["Agenda y Citas", "Clínico", "Portal del Paciente", "Consentimientos"]], ["Nutrición / Dietas", 0, "Gestiona la evaluación nutricional y las dietas de los pacientes hospitalizados, desde la indicación hasta la entrega de la bandeja.", ["Evaluación nutricional", "Indicación de dieta por paciente", "Producción y entrega de alimentación", "Restricciones y alergias alimentarias"], "Nutricionistas, médicos, enfermería y servicio de alimentación.", ["Clínico", "Enfermería", "Camas y Habitaciones", "Inventario"]], ["Quirófano", 0, "Programa y registra las cirugías: pabellón, equipo, insumos, tiempos y el checklist de seguridad.", ["Programación de pabellón", "Registro de la cirugía y la anestesia", "Checklist de seguridad", "Insumos y tiempos quirúrgicos"], "Cirujanos, anestesiólogos, enfermeras de pabellón y arsenaleras.", ["Esterilización / CEyE", "Banco de Sangre", "Consentimientos", "Inventario"]], ["Órdenes Clínicas", 1, "Es el puente entre quien indica y quien ejecuta: el médico emite exámenes, procedimientos o interconsultas y llegan al servicio correcto.", ["Órdenes de laboratorio, imagen y procedimientos", "Paquetes y protocolos de indicaciones", "Prioridad y estado de cada orden", "Trazabilidad hasta el resultado"], "Médicos y profesionales que indican; la ejecutan laboratorio, imágenes y otros servicios.", ["Clínico", "Laboratorio / LIS", "Imagenología / RIS-PACS", "Farmacia"]], ["Laboratorio / LIS", 1, "Gestiona las muestras desde la toma hasta el informe: recepción, procesamiento en los analizadores, validación y entrega del resultado.", ["Recepción y rotulado de muestras", "Conexión con analizadores", "Validación y valores críticos", "Informe de resultados"], "Tecnólogos médicos y técnicos de laboratorio.", ["Órdenes Clínicas", "Clínico", "Integraciones", "Patología"]], ["Imagenología / RIS-PACS", 1, "Administra los estudios de imágenes: el RIS maneja la agenda y el informe, y el PACS almacena y muestra las imágenes.", ["Agenda de exámenes de imagen", "Almacenamiento y visualización (DICOM)", "Informe del radiólogo", "Entrega de resultados e imágenes"], "Tecnólogos médicos, técnicos, radiólogos y médicos que solicitan.", ["Órdenes Clínicas", "Clínico", "Integraciones", "Telemedicina"]], ["Patología", 1, "Controla las biopsias y estudios anatomopatológicos: recepción de la muestra, procesamiento, diagnóstico y entrega del informe.", ["Recepción y trazabilidad de muestras", "Procesamiento y estudio", "Informe anatomopatológico", "Seguimiento de casos"], "Patólogos, tecnólogos médicos y técnicos.", ["Órdenes Clínicas", "Laboratorio / LIS", "Clínico", "Quirófano"]], ["Banco de Sangre", 1, "Controla la sangre y sus derivados: donantes, compatibilidad, stock, entrega y seguimiento de cada transfusión.", ["Registro de donantes y donaciones", "Pruebas de compatibilidad", "Stock y vencimientos", "Trazabilidad de la transfusión"], "Tecnólogos médicos de banco de sangre, médicos y enfermería.", ["Órdenes Clínicas", "Quirófano", "Laboratorio / LIS", "Emergencias"]], ["Farmacia", 1, "Gestiona los medicamentos: valida la prescripción, dispensa y controla el stock. Es clave para evitar errores y reacciones adversas.", ["Validación de prescripciones (interacciones y alergias)", "Dispensación por paciente y por unidad", "Control de stock, lotes y vencimientos", "Medicamentos controlados"], "Químicos farmacéuticos, técnicos de farmacia, médicos y enfermería.", ["Clínico", "Enfermería", "Inventario", "Motor de Reglas Clínicas"]], ["Esterilización / CEyE", 1, "Controla el ciclo del instrumental y de los sets quirúrgicos: lavado, empaque, esterilización y entrega, con trazabilidad hasta el paciente.", ["Registro de sets y ciclos", "Control de autoclaves", "Trazabilidad por lote", "Entrega a pabellón y unidades"], "TENS de esterilización y enfermeras de pabellón.", ["Quirófano", "Inventario", "Control de Infecciones", "Calidad y Seguridad"]], ["Facturación", 2, "Valoriza las prestaciones entregadas y prepara el cobro al paciente, a los seguros o al sistema de salud.", ["Registro de prestaciones y cargos", "Valorización y GRD", "Cuentas del paciente", "Cobro y reclamos"], "Unidad de recaudación, facturación y codificadores.", ["Admisión / ADT", "Seguros", "Clínico", "Reportes / BI"]], ["Seguros", 2, "Administra la cobertura del paciente: previsión, convenios y autorizaciones con aseguradoras y entidades pagadoras.", ["Previsión y convenios", "Verificación de cobertura", "Autorizaciones y bonos", "Seguimiento de pagos"], "Admisión, facturación y asistentes sociales.", ["Paciente", "Facturación", "Admisión / ADT"]], ["Inventario", 2, "Controla los insumos y medicamentos del hospital: existencias, bodegas, lotes, consumos y reposición.", ["Stock por bodega y unidad", "Lotes y vencimientos", "Consumo por paciente", "Alertas de reposición"], "Encargados de bodega, farmacia y abastecimiento.", ["Compras", "Farmacia", "Gestión de Recursos", "Esterilización / CEyE"]], ["Compras", 2, "Gestiona la adquisición de bienes y servicios: solicitud, cotización, orden de compra y recepción.", ["Solicitudes de compra", "Licitación y órdenes de compra", "Recepción y pago a proveedores", "Control presupuestario"], "Unidad de compras, finanzas y bodega.", ["Inventario", "Administración Hospitalaria", "Gestión de Recursos"]], ["RRHH / Personal", 2, "Administra a las personas que trabajan en el hospital: contratos, turnos, credenciales y permisos. Se enlaza con los usuarios del sistema.", ["Ficha del funcionario y contratos", "Turnos y dotación", "Licencias y permisos", "Altas y bajas de usuarios del sistema"], "Recursos humanos, jefaturas y supervisoras.", ["Seguridad / IAM", "Gestión Operacional", "Administración Hospitalaria"]], ["Administración Hospitalaria", 2, "Da la visión de gestión del hospital: presupuesto, producción, convenios y decisiones de dirección.", ["Presupuesto y costos", "Producción por servicio", "Convenios y contratos", "Cuadros de mando para la dirección"], "Dirección, subdirecciones y finanzas.", ["Reportes / BI", "Facturación", "Compras", "Gestión Operacional"]], ["Gestión de Recursos", 2, "Coordina los recursos físicos y técnicos, como salas, equipos y camas, para que estén disponibles cuando se necesitan.", ["Asignación de salas y equipos", "Mantención de equipos médicos", "Disponibilidad de recursos", "Calendario de uso"], "Servicios generales, ingeniería clínica y jefaturas.", ["Camas y Habitaciones", "Quirófano", "Inventario"]], ["Gestión Operacional", 2, "Mira el hospital en tiempo real: ocupación, flujos, tiempos de espera y cuellos de botella, para decidir y reaccionar.", ["Tablero de ocupación y flujo", "Tiempos de espera", "Alertas operativas", "Coordinación entre servicios"], "Gestión operacional, jefaturas y dirección.", ["Camas y Habitaciones", "Emergencias", "Reportes / BI", "RRHH / Personal"]], ["Ambulancias / Transporte", 2, "Coordina los traslados de pacientes: solicitud, asignación de móvil, ruta y registro de la atención durante el trayecto.", ["Solicitud y despacho", "Asignación de móvil y personal", "Seguimiento del traslado", "Registro de la atención en ruta"], "Centro de despacho, conductores y TENS o paramédicos de ambulancia.", ["Emergencias", "Admisión / ADT", "Comunicación"]], ["Reportes / BI", 3, "Convierte los datos registrados en indicadores y reportes para gestionar, informar a la autoridad y mejorar.", ["Indicadores y tableros", "Reportes estadísticos oficiales para la autoridad de salud", "Análisis de producción y calidad", "Exportación y explotación de datos"], "Estadística, jefaturas, calidad y dirección.", ["Salud Pública", "Calidad y Seguridad", "Administración Hospitalaria", "Integraciones"]], ["Calidad y Seguridad", 3, "Gestiona la seguridad del paciente: eventos adversos, indicadores de calidad, auditorías y planes de mejora.", ["Notificación de eventos adversos", "Indicadores de calidad", "Planes de mejora", "Apoyo a la acreditación"], "Unidad de calidad, jefaturas y funcionarios.", ["Control de Infecciones", "Auditoría", "Reportes / BI"]], ["Seguridad / IAM", 3, "Decide quién entra al sistema y qué puede hacer: usuarios, roles y permisos, con registro de cada acceso.", ["Usuarios, roles y perfiles", "Inicio de sesión seguro", "Permisos por función", "Registro de accesos"], "Informáticos, seguridad de la información y RRHH.", ["RRHH / Personal", "Auditoría", "Gestión Documental"]], ["Gestión Documental", 3, "Almacena y ordena los documentos clínicos y administrativos, como epicrisis, informes, consentimientos y certificados, con firma electrónica.", ["Epicrisis e informes", "Firma electrónica", "Versiones y archivo", "Entrega al paciente"], "Médicos, enfermeras, archivo y administrativos.", ["Clínico", "Consentimientos", "Portal del Paciente", "Auditoría"]], ["Integraciones", 3, "Conecta el HIS con otros sistemas (laboratorio, imágenes, redes externas) usando estándares como HL7, FHIR y DICOM.", ["Interfaces HL7 y FHIR", "Motor de integración y monitoreo", "Mapeo de catálogos y terminologías", "Conexión con redes externas"], "Informáticos, ingenieros de integración y proveedores.", ["Laboratorio / LIS", "Imagenología / RIS-PACS", "Paciente", "Reportes / BI"]], ["Consentimientos", 3, "Registra y controla las autorizaciones del paciente para procedimientos, tratamientos y uso de sus datos.", ["Consentimientos informados por procedimiento", "Firma del paciente o su representante", "Vínculo con la atención", "Vigencia y revocación"], "Médicos, enfermería y admisión.", ["Quirófano", "Telemedicina", "Gestión Documental", "Portal del Paciente"]], ["Auditoría", 3, "Deja constancia de quién hizo qué y cuándo en el sistema, para revisar accesos y detectar usos indebidos.", ["Registro de accesos a la ficha", "Cambios en datos y documentos", "Alertas de accesos inusuales", "Informes para revisión"], "Seguridad de la información, calidad y jefaturas.", ["Seguridad / IAM", "Calidad y Seguridad", "Gestión Documental"]], ["Control de Infecciones", 3, "Vigila las infecciones asociadas a la atención de salud (IAAS): casos, aislamientos, brotes y medidas de prevención.", ["Vigilancia de IAAS", "Aislamientos y alertas", "Resultados de microbiología", "Notificación de brotes"], "Enfermeras de control de infecciones, microbiología y epidemiología.", ["Laboratorio / LIS", "Enfermería", "Calidad y Seguridad", "Salud Pública"]], ["Salud Pública", 3, "Alimenta la vigilancia epidemiológica y las notificaciones obligatorias hacia la autoridad sanitaria.", ["Notificación de enfermedades obligatorias", "Vigilancia epidemiológica", "Reportes a la autoridad sanitaria", "Programas de salud de la población"], "Epidemiología, estadística y direcciones de salud.", ["Reportes / BI", "Control de Infecciones", "Clínico"]], ["Motor de Reglas Clínicas", 3, "Revisa lo que se registra y avisa cuando hay riesgo: alergias, interacciones, valores fuera de rango o un paso del protocolo que falta.", ["Alertas de alergias e interacciones", "Reglas de apoyo a la decisión", "Recordatorios de protocolos", "Control de alertas para no saturar al clínico"], "Clínicos, que reciben las alertas, e informáticos, que las configuran.", ["Clínico", "Farmacia", "Órdenes Clínicas", "IA Clínica"]], ["Portal del Paciente", 4, "Es la puerta del paciente a su información: citas, resultados, documentos y mensajes del hospital.", ["Citas y recordatorios", "Resultados y epicrisis", "Documentos y certificados", "Mensajes y encuestas"], "Pacientes y sus representantes.", ["Agenda y Citas", "Gestión Documental", "Comunicación", "Paciente"]], ["Portal del Profesional", 4, "Reúne en un solo lugar las tareas, alertas, pacientes y resultados pendientes de cada profesional.", ["Pacientes asignados", "Resultados y alertas pendientes", "Tareas y turnos", "Accesos rápidos"], "Médicos, enfermeras y demás profesionales.", ["Clínico", "Órdenes Clínicas", "Seguridad / IAM", "Comunicación"]], ["Comunicación", 4, "Gestiona los mensajes entre el hospital, los equipos y los pacientes: avisos, recordatorios y notificaciones.", ["Mensajes y recordatorios por SMS o correo", "Notificaciones internas", "Plantillas de mensajes", "Consentimiento de contacto"], "Admisión, agenda y equipos clínicos.", ["Agenda y Citas", "Portal del Paciente", "Portal del Profesional"]], ["Investigación Clínica", 4, "Apoya estudios y ensayos clínicos con datos seudonimizados, control de participantes y aprobación ética.", ["Registro de estudios y participantes", "Datos seudonimizados", "Aprobación ética", "Extracción de datos para análisis"], "Investigadores, comité de ética y unidades clínicas.", ["Clínico", "Reportes / BI", "IA Clínica", "Consentimientos"]], ["Docencia / Formación", 4, "Organiza la formación en el hospital: estudiantes, campos clínicos, accesos supervisados y capacitaciones.", ["Cupos y campos clínicos", "Accesos temporales y supervisados", "Capacitaciones y asistencia", "Evaluación de estudiantes"], "Docentes clínicos, estudiantes y unidad de docencia.", ["Seguridad / IAM", "RRHH / Personal", "Portal del Profesional"]], ["IA Clínica", 4, "Usa modelos de datos para apoyar al equipo: predecir riesgos, priorizar casos y resumir información, siempre con supervisión clínica.", ["Predicción de riesgo y deterioro", "Apoyo al diagnóstico por imágenes", "Lectura y resumen de texto clínico (NLP)", "Control de sesgos y calidad de datos"], "Clínicos, ciencia de datos y comité de ética.", ["Motor de Reglas Clínicas", "Investigación Clínica", "Reportes / BI", "Clínico"]]]};
+PAC.brief=[0,1,2,3,4,6,7,10,12];INF.brief=[0,3,4,6,7,9,13];
+const ORIG=JSON.parse(JSON.stringify({pac:PAC,inf:INF,mod:MOD}));
+/* Versión internacional: cambia lo propio de Chile por términos generales */
+const INTL=[
+ [/busca por RUN/g,"busca por su identificador nacional"],
+ [/validación del RUN \(módulo 11\)/g,"validación del identificador nacional (dígito verificador)"],
+ [/RUN inválidos/g,"identificadores inválidos"],
+ [/identificación única por RUN/g,"identificación única por el identificador nacional"],
+ [/\bRUN\b/g,"identificador nacional"],
+ [/ \(Ley 21\.668\)/g," de tu país"],
+ [/ \(Ley 20\.584\)/g," de tu país"],
+ [/elabora el REM y los reportes/g,"elabora los reportes estadísticos oficiales y los demás reportes"],
+ [/REM\/DEIS/g,"reportes estadísticos oficiales"],
+ [/códigos DEIS/g,"códigos oficiales de establecimientos y prestaciones"],
+ [/\bREM\b/g,"reportes estadísticos oficiales"],
+ [/\(SIGTE\)/g,"(sistema de listas de espera)"],
+ [/en SIGTE/g,"en el sistema de listas de espera"],
+ [/GRD, Fonasa o Isapre/g,"GRD, seguro público o privado"],
+ [/del MINSAL/g,"del ministerio de salud"],
+ [/MINSAL/g,"ministerio de salud"],
+ [/Mercado Público/g,"portales de compras públicas"],
+ [/\bTENS\b/g,"técnico en enfermería"]
+];
+const L=t=>INTL.reduce((x,[r,v])=>x.replace(r,v),t);
+const dm=v=>typeof v==="string"?L(v):Array.isArray(v)?v.map(dm):(v&&typeof v==="object")?Object.fromEntries(Object.entries(v).map(([a,b])=>[a,dm(b)])):v;
+let PAIS="cl",KEY="pac",LASTKEY="pac",LEN="full";
+const mk=k=>PAIS==="int"?dm(ORIG[k]):JSON.parse(JSON.stringify(ORIG[k]));
+const mkAll=()=>({pac:mk("pac"),inf:mk("inf"),mod:mk("mod")});
+let MODES=mkAll();
+const act=()=>(LEN==="brief"?M.brief:M.steps.map((_,i)=>i)).map(i=>M.steps[i].concat([M.roles[i]]));
+
+/* =====================  ESTADO  ===================== */
+const $=id=>document.getElementById(id);
+const PAL=["c0","c1","c2","c3","c4","c5","c6","c7"];
+let M=MODES.pac,S=act(),PH=M.phases,cur=0,auto=false,voice=false,sid=0,tm=null,esV=null,voices=[];
+const syn=window.speechSynthesis;
+const hush=()=>{if(syn){sid++;syn.cancel()}document.body.classList.remove("talking")};
+const store={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+if(store.get("pais")==="int"){PAIS="int";MODES=mkAll();M=MODES.pac}
+if(store.get("largo")==="brief")LEN="brief";
+S=act();PH=M.phases;
+
+/* =====================  VOZ  ===================== */
+const rank=v=>{const l=v.lang.replace("_","-").toLowerCase();return l==="es-cl"?0:l==="es-419"?1:l==="es-mx"?2:l==="es-us"?3:4};
+function pick(){
+  voices=syn.getVoices().filter(v=>v.lang.toLowerCase().startsWith("es")).sort((a,b)=>rank(a)-rank(b)||a.name.localeCompare(b.name));
+  const saved=store.get("voz");
+  esV=voices.find(v=>v.name===saved)||voices[0]||null;
+  $("vsel").innerHTML=voices.length?voices.map(v=>`<option value="${v.name}"${esV&&v.name===esV.name?" selected":""}>${v.name} (${v.lang})</option>`).join(""):"<option>Sin voces en español</option>";
+  const cl=esV&&esV.lang.replace("_","-").toLowerCase()==="es-cl";
+  $("vhint").textContent=cl?"Usando una voz chilena.":"Tu dispositivo no tiene una voz de Chile instalada. En Microsoft Edge (PC) suelen aparecer voces es-CL; en Android, instala una voz en español de Chile en Ajustes > Texto a voz.";
+}
+if(syn){pick();syn.onvoiceschanged=pick}else{$("voice").disabled=true;$("voice").textContent="🔇 Sin voz en este navegador";$("vsel").style.display="none"}
+$("vsel").onchange=()=>{esV=voices.find(v=>v.name===$("vsel").value)||esV;store.set("voz",esV.name);pick()};
+
+/* Cómo se dicen las siglas y números en voz alta (español de Chile) */
+const LET={A:"a",B:"be",C:"ce",D:"de",E:"e",F:"efe",G:"ge",H:"hache",I:"i",J:"jota",K:"ka",L:"ele",M:"eme",N:"ene","Ñ":"eñe",O:"o",P:"pe",Q:"cu",R:"erre",S:"ese",T:"te",U:"u",V:"ve",W:"doble ve",X:"equis",Y:"i griega",Z:"zeta"};
+const WORD={FHIR:"fáir",DICOM:"dicom",LOINC:"loink",SNOMED:"esnomed",DEIS:"deis",ATNA:"atna",CDISC:"cédisc",SIGTE:"sigte",SMART:"esmart",PACS:"pacs",RIS:"ris",LIS:"lis",SIDRA:"sidra",MINSAL:"minsal",GES:"ges",TENS:"tens",ISO:"iso",RUN:"rut",NN:"ene ene",IA:"inteligencia artificial",RRHH:"recursos humanos",IAAS:"infecciones asociadas a la atención de salud",HL7:"hache ele siete",GS1:"ge ese uno",HIS:"hache i ese",SAMU:"samu"};
+const PR=[
+ [/\^/g," "],[/HL7 v2/g,"hache ele siete versión dos"],[/DICOMweb/g,"dicom web"],[/SNOMED CT/g,"esnomed ce te"],
+ [/ISBT 128/g,"i ese be te ciento veintiocho"],[/CEyE/g,"central de esterilización"],[/TrakCare/g,"trakker"],
+ [/CIE-(\d+)/g,"ce i e $1"],[/\bC1 a C5\b/g,"ce uno a ce cinco"],[/Ley (\d+)\.(\d{3})/g,"ley $1$2"],
+ [/\bvs\./g,"versus"],[/\s*\/\s*/g," y "]
+];
+function say(t){
+  let s=PR.reduce((x,[r,v])=>x.replace(r,v),t.replace(/triage/gi,PAIS==="cl"?"triach":"triaje"));
+  return s.replace(/\b[A-ZÑ]{1,6}\d{0,3}\b/g,m=>{
+    if(WORD[m])return WORD[m];
+    const k=m.match(/^([A-ZÑ]+)(\d*)$/);
+    if(!k||(k[1].length===1&&!k[2]))return m;
+    return [...k[1]].map(c=>LET[c]||c).join(" ")+(k[2]?" "+parseInt(k[2],10):"");
+  });
+}
+function narr(s){
+  const n=cur+1,last=cur===S.length-1,intro=cur===0?M.intro+(M.case?"Caso clínico ficticio. "+M.case+" ":""):"";
+  if(LEN==="brief")return say(`${intro}${M.unit} ${n} de ${S.length}. ${s[0]}. ${M.spoken[0]} ${s[3]} ${M.spoken[3]} ${s[6]}${last?M.outro:""}`);
+  return say(`${intro}${M.unit} ${n} de ${S.length}. Fase: ${PH[s[1]][0]}. ${s[0]}. ${M.tagsLabel}: ${s[2].join(", ")}. ${M.spoken[0]} ${s[3]} ${M.spoken[1]} ${s[4]} ${M.spoken[2]} ${s[5]} ${M.spoken[3]} ${s[6]}${last?M.outro:""}`);
+}
+function speak(text,done){
+  syn.cancel();const id=++sid;document.body.classList.add("talking");
+  const parts=(text.match(/[^.;:]+[.;:]?/g)||[text]).map(x=>x.trim()).filter(Boolean);
+  parts.forEach((p,i)=>{
+    const u=new SpeechSynthesisUtterance(p);
+    u.lang=esV?esV.lang:"es-CL";if(esV)u.voice=esV;u.rate=+$("rate").value;
+    if(i===parts.length-1){u.onend=u.onerror=()=>{if(id===sid){document.body.classList.remove("talking");if(done)done()}}}
+    syn.speak(u);
+  });
+}
+
+/* =====================  RECORRIDO  ===================== */
+function build(){
+  $("h1").textContent=M.title;$("sub").textContent=M.sub;document.title=M.title;
+  $("track").innerHTML=S.map((s,i)=>`<button class="dot" data-i="${i}" style="--a:var(--${PAL[i%8]})"><b>${i+1}</b><span>${s[0]}</span></button>`).join("");
+}
+function go(i){
+  clearTimeout(tm);hush()
+  cur=(i+S.length)%S.length;
+  const s=S[cur],a=`var(--${PAL[cur%8]})`;
+  document.querySelectorAll(".dot").forEach((e,k)=>{e.classList.toggle("on",k===cur);e.classList.toggle("done",k<cur)});
+  document.querySelector(".dot.on").scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
+  document.documentElement.style.setProperty("--a",a);
+  $("card").innerHTML=`<div class="tag">${M.unit} ${cur+1} de ${S.length} · ${PH[s[1]][0]}</div><h2>${s[0]}</h2><div class="mods">${s[2].map(m=>`<i>${m}</i>`).join("")}</div><div class="grid"><div class="blk"><h3>${M.heads[0]}</h3><p>${s[3]}</p></div><div class="blk"><h3>${M.heads[1]}</h3><p>${s[4]}</p></div><div class="blk"><h3>${M.heads[2]}</h3><p>${s[5]}</p></div><div class="blk wide"><h3>${M.heads[3]}</h3><p>${s[6]}</p></div></div>`;
+  $("case").innerHTML=M.case?`<b>Caso clínico (ficticio):</b> ${M.case}`:"";
+  $("case").style.display=M.case?"block":"none";
+  const cd=$("card");cd.classList.remove("enter");void cd.offsetWidth;cd.classList.add("enter");
+  if(KEY==="pac"){
+    const seen=new Set();S.slice(0,cur+1).forEach(x=>x[2].forEach(m=>seen.add(m)));
+    const tot=new Set(S.flatMap(x=>x[2])).size;
+    $("meter").innerHTML=`Módulos recorridos: <b>${seen.size}</b> de ${tot}<div class="bar"><div style="width:${seen.size/tot*100}%"></div></div>`;
+  }else{
+    $("meter").innerHTML=`Etapas del proyecto: <b>${cur+1}</b> de ${S.length}<div class="bar"><div style="width:${(cur+1)/S.length*100}%"></div></div>`;
+  }
+  const next=()=>{if(auto){if(cur===S.length-1)stop();else tm=setTimeout(()=>go(cur+1),voice?900:(LEN==="brief"?6000:8000))}};
+  if(voice&&syn)speak(narr(s),next);else next();
+}
+function stop(){auto=false;clearTimeout(tm);hush();$("play").textContent="▶ Recorrido automático"}
+function setMode(k){
+  stop();
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.m===k));
+  document.body.classList.toggle("modmode",k==="mod");
+  if(k==="mod"){KEY="mod";$("h1").textContent=MODES.mod.title;$("sub").textContent=MODES.mod.sub;document.title=MODES.mod.title;renderMods();return}
+  KEY=k;LASTKEY=k;M=MODES[k];S=act();PH=M.phases;build();go(0);
+}
+
+$("modes").onclick=e=>{const b=e.target.closest("button");if(b)setMode(b.dataset.m)};
+$("track").onclick=e=>{const b=e.target.closest(".dot");if(b){stop();go(+b.dataset.i)}};
+$("ctl").onclick=e=>{
+  const a=e.target.dataset.a;if(!a)return;
+  if(a==="voice"){voice=!voice;$("voice").classList.toggle("on",voice);$("voice").setAttribute("aria-pressed",voice);$("voice").textContent=voice?"🔊 Voz: activada":"🔊 Voz: apagada";go(cur);return}
+  if(a==="play"){if(auto)return stop();auto=true;$("play").textContent="⏸ Pausar";go(cur===S.length-1?0:cur);return}
+  stop();go(cur+(a==="next"?1:-1));
+};
+document.onkeydown=e=>{if(e.target.tagName==="SELECT")return;if(e.key==="ArrowRight"){stop();go(cur+1)}if(e.key==="ArrowLeft"){stop();go(cur-1)}};
+/* ---------- Explorador de módulos ---------- */
+let MSEL=0,MGRP=-1,MQ="";
+const norm=t=>t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const ALIAS={"Camas y Hospitalización":"Camas y Habitaciones"};
+function renderGroups(){
+  const G=MODES.mod.groups,Z=MODES.mod.mods;
+  $("mgroups").innerHTML=[`<button data-g="-1" class="${MGRP===-1?"on":""}" style="--a:var(--c0)">Todos (${Z.length})</button>`].concat(G.map((g,i)=>`<button data-g="${i}" class="${MGRP===i?"on":""}" style="--a:var(--${g[1]})">${g[0]} (${Z.filter(m=>m[1]===i).length})</button>`)).join("");
+}
+function renderGrid(){
+  const G=MODES.mod.groups,Z=MODES.mod.mods,vis=[];
+  Z.forEach((m,i)=>{if((MGRP===-1||m[1]===MGRP)&&(!MQ||norm([m[0],m[2],m[3].join(" ")].join(" ")).includes(MQ)))vis.push(i)});
+  $("mcount").textContent=vis.length+" de "+Z.length+" módulos";
+  $("mgrid").innerHTML=vis.map((i,n)=>`<button class="tile${i===MSEL?" on":""}" data-i="${i}" style="--a:var(--${PAL[i%8]});--i:${n}">${Z[i][0]}</button>`).join("")||'<p style="color:var(--mut)">No hay módulos con esa búsqueda.</p>';
+}
+function showMod(i){
+  const D=MODES.mod,G=D.groups,Z=D.mods;MSEL=i;
+  hush()
+  const m=Z[i],g=G[m[1]],st=[];
+  MODES.pac.steps.forEach((x,k)=>{if(x[2].some(t=>(ALIAS[t]||t)===m[0]))st.push([k,x[0]])});
+  const d=$("mdetail");d.style.setProperty("--a",`var(--${PAL[i%8]})`);
+  d.innerHTML=`<div class="tag">${g[0]} · Módulo ${i+1} de ${Z.length}</div><h2>${m[0]}</h2><div class="grid"><div class="blk"><h3>Qué hace</h3><p>${m[2]}</p></div><div class="blk"><h3>Funciones clave</h3><ul>${m[3].map(f=>`<li>${f}</li>`).join("")}</ul></div><div class="blk"><h3>Quién lo usa</h3><p>${m[4]}</p></div><div class="blk wide"><h3>Se conecta con</h3><div class="mods">${m[5].map(c=>`<button class="lnk" data-go="${Z.findIndex(x=>x[0]===c)}">${c}</button>`).join("")}</div></div>${st.length?`<div class="blk wide"><h3>Dónde aparece en el recorrido del paciente</h3><div class="mods">${st.map(([k,t])=>`<button class="lnk" data-step="${k}">Paso ${k+1} · ${t}</button>`).join("")}</div></div>`:""}</div><div style="margin-top:14px"><button class="lnk big" data-say="1">🔊 Escuchar este módulo</button></div>`;
+  d.classList.remove("enter");void d.offsetWidth;d.classList.add("enter");
+  document.querySelectorAll(".tile").forEach(t=>t.classList.toggle("on",+t.dataset.i===i));
+}
+function renderMods(){renderGroups();renderGrid();showMod(MSEL>=MODES.mod.mods.length?0:MSEL)}
+function speakMod(){
+  if(!syn)return;
+  if(syn.speaking){hush();return}
+  const m=MODES.mod.mods[MSEL],g=MODES.mod.groups[m[1]];
+  speak(say(`${m[0]}. Grupo: ${g[0]}. Qué hace. ${m[2]} Funciones clave: ${m[3].join(", ")}. Lo usan: ${m[4]} Se conecta con: ${m[5].join(", ")}.`));
+}
+function jumpStep(k){
+  if(LEN!=="full"){LEN="full";store.set("largo","full");markLen()}
+  setMode("pac");go(k);window.scrollTo({top:0,behavior:"smooth"});
+}
+$("mods").onclick=e=>{
+  const t=e.target.closest("button");if(!t)return;
+  const d=t.dataset,up=()=>$("mdetail").scrollIntoView({behavior:"smooth",block:"start"});
+  if(d.i!==undefined){showMod(+d.i);up()}
+  else if(d.go!==undefined){showMod(+d.go);renderGrid();up()}
+  else if(d.g!==undefined){MGRP=+d.g;renderGroups();renderGrid()}
+  else if(d.step!==undefined){jumpStep(+d.step)}
+  else if(d.say){speakMod()}
+};
+$("msearch").oninput=e=>{MQ=norm(e.target.value.trim());renderGrid()};
+
+function markLen(){document.querySelectorAll("#largo button").forEach(b=>b.classList.toggle("on",b.dataset.l===LEN))}
+function setLen(l){stop();LEN=l;store.set("largo",l);S=act();markLen();build();go(0)}
+$("largo").onclick=e=>{const b=e.target.closest("button");if(b)setLen(b.dataset.l)};
+function markPais(){document.querySelectorAll("#pais button").forEach(b=>b.classList.toggle("on",b.dataset.p===PAIS))}
+function setPais(p){stop();PAIS=p;store.set("pais",p);MODES=mkAll();M=MODES[LASTKEY];S=act();PH=M.phases;markPais();if(KEY==="mod")renderMods();else{build();go(cur)}}
+$("pais").onclick=e=>{const b=e.target.closest("button");if(b)setPais(b.dataset.p)};
+markLen();markPais();build();go(0);
+
+(function(){
+  const cv=$("fx");
+  if(!cv||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const x=cv.getContext("2d"),COL=["34,211,238","167,139,250","244,114,182","251,191,36","52,211,153","56,189,248"];
+  let P=[],run=true;
+  function size(){
+    const r=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*r;cv.height=innerHeight*r;x.setTransform(r,0,0,r,0,0);
+    const n=Math.min(48,Math.round(innerWidth*innerHeight/26000));
+    P=Array.from({length:n},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:1.2+Math.random()*1.8,c:COL[Math.random()*COL.length|0]}));
+  }
+  function tick(){
+    if(!run)return;
+    x.clearRect(0,0,innerWidth,innerHeight);
+    for(const p of P){p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>innerWidth)p.vx*=-1;if(p.y<0||p.y>innerHeight)p.vy*=-1}
+    for(let i=0;i<P.length;i++){
+      const a=P[i];x.fillStyle="rgba("+a.c+",.8)";x.beginPath();x.arc(a.x,a.y,a.r,0,7);x.fill();
+      for(let j=i+1;j<P.length;j++){
+        const b=P[j],dx=a.x-b.x,dy=a.y-b.y,d=dx*dx+dy*dy;
+        if(d<14000){x.strokeStyle="rgba("+a.c+","+(.22*(1-d/14000))+")";x.lineWidth=1;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  size();addEventListener("resize",size);
+  document.addEventListener("visibilitychange",()=>{const was=run;run=!document.hidden;if(run&&!was)tick()});
+  tick();
+})();
+
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
